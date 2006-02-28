@@ -28,6 +28,10 @@ sub new {
 sub _start_tag {
     my($self, $tagname, $attr, $attrseq, $text) = @_;
 
+    if ($tagname eq 'base' && defined $attr->{href}) {
+        $self->{resolvelink_base} = $attr->{href};
+    }
+
     my $base = $self->{resolvelink_base};
 
     my $links = $HTML::Tagset::linkElements{$tagname} || [];
@@ -96,7 +100,7 @@ HTML::ResolveLink - Resolve relative links in (X)HTML into absolute URI
   use HTML::ResolveLink;
 
   my $resolver = HTML::ResolveLink->new(
-      base => 'http://www.example.com/',
+      base => 'http://www.example.com/foo/bar.html',
   );
   $html = $resolver->resolve($html);
 
@@ -104,6 +108,18 @@ HTML::ResolveLink - Resolve relative links in (X)HTML into absolute URI
 
 HTML::ResolveLink is a module to rewrite relative links in XHTML or
 HTML into absolute URI.
+
+For example. when you have
+
+  <a href="foo.html">foo</a>
+  <img src="/bar.gif" />
+
+and use C<http://www.example.com/foo/bar> as C<base> URL, you'll get:
+
+  <a href="http://www.example.com/foo/foo.html">foo</a>
+  <img src="http://www.example.com/bar.gif" />
+
+If the parser encounters C<< <base> >> tag in HTML, it'll honor that.
 
 =head1 METHODS
 

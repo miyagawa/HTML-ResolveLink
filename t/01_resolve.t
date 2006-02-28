@@ -1,5 +1,5 @@
 use strict;
-use Test::More 'no_plan';
+use Test::More tests => 2;
 use HTML::ResolveLink;
 
 my $base = "http://www.example.com/base/";
@@ -12,7 +12,6 @@ my $html = $resolver->resolve(<<'HTML');
 <a href="http://www.example.net/">bar</a>
 <!-- hello -->
 HTML
-    ;
 
 is $html, <<'HTML';
 <a href="http://www.example.com/foo">foo</a><img src="http://www.example.com/bar.gif" alt="foo &amp; bar" /> foobar
@@ -20,5 +19,19 @@ is $html, <<'HTML';
 <a href="http://www.example.com/base/foo.html" onclick="foobar()">bar</a><br />
 <a href="http://www.example.net/">bar</a>
 <!-- hello -->
+HTML
+
+$html = $resolver->resolve(<<'HTML');
+<base href="http://www.google.com/">
+<a href="baz">foo</a>
+<base href="http://www.example.com/">
+<a href="baz">foo</a>
+HTML
+
+is $html, <<'HTML', '<base>';
+<base href="http://www.google.com/">
+<a href="http://www.google.com/baz">foo</a>
+<base href="http://www.example.com/">
+<a href="http://www.example.com/baz">foo</a>
 HTML
     ;
